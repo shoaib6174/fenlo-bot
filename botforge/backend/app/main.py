@@ -52,7 +52,12 @@ async def lifespan(app: FastAPI):
     # --- STARTUP ---
     logger.info("app.starting", app=settings.app_name, version="0.1.0")
 
-    # Initialize LLM Router singleton (AX.11)
+    # Initialize Arize AX tracing (Phase 9) — must run BEFORE LLM clients
+    from app.core.instrumentation import init_tracing
+
+    init_tracing()
+
+    # Initialize LLM Router singleton
     from app.core.llm_router import LLMRouter
 
     app.state.llm_router = LLMRouter()

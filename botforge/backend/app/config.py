@@ -163,6 +163,11 @@ class Settings(BaseSettings):
     auto_archive_enabled: bool = True
     storage_limit_mb: int = 1000  # Per-workspace storage limit
 
+    # --- Arize AX Observability (Phase 9) ---
+    arize_space_id: str = ""  # Arize Space ID - from app.arize.com
+    arize_api_key: str = ""  # Arize API Key - from app.arize.com
+    arize_project_name: str = "fenlo-ai"  # Arize project name
+
     # --- Feature Flags ---
     registration_enabled: bool = True
 
