@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BotForge Demo Reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="screenshots/02-dashboard.png">
+<link rel="preload" as="image" href="screenshots/03-kb.png">
+<link rel="preload" as="image" href="screenshots/04-chat.png">
+<link rel="preload" as="image" href="screenshots/05-gaps.png">
+<link rel="preload" as="image" href="screenshots/voice-chat.png">
+<link rel="preload" as="image" href="screenshots/escalation-rules.png">
+<link rel="preload" as="image" href="screenshots/unified-inbox.png">
+<link rel="preload" as="image" href="screenshots/08-escalated.png">
+<link rel="preload" as="image" href="screenshots/09-analytics.png">
+<link rel="preload" as="image" href="screenshots/10-channels.png">
+<style>
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fff;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reel {
+    position: relative;
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+    background: #fff;
+    transform-origin: center center;
+    /* JS sets --reel-scale on load + resize */
+    transform: scale(var(--reel-scale, 1));
+  }
+
+  /* -- Slides -- */
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out;
+  }
+
+  /* Screenshot slides */
+  .slide.screenshot { overflow: hidden; }
+
+  .slide.screenshot .bg {
+    position: absolute;
+    inset: 0;
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    transform-origin: center center;
+    animation: kenBurns 4s ease-out forwards;
+    animation-play-state: paused;
+  }
+
+  @keyframes kenBurns {
+    from { transform: scale(1); }
+    to   { transform: scale(1.05); }
+  }
+
+  /* ---- BOTTOM-ANCHORED FROSTED GLASS OVERLAY ---- */
+  .slide .overlay {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.88);
+    text-align: center;
+    padding: 32px 60px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    border: 1px solid rgba(20,168,0,0.25);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(20,168,0,0.08);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    animation: overlayIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-play-state: paused;
+    z-index: 10;
+  }
+
+  .slide .overlay h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #001e00;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+
+  .slide .overlay .step {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    padding: 10px 28px;
+    border: none;
+    border-radius: 10px;
+    background: #14a800;
+    box-shadow: 0 4px 20px rgba(20,168,0,0.3);
+  }
+
+  @keyframes overlayIn {
+    from { opacity: 0; transform: translateX(-50%) scale(0.88); }
+    to   { opacity: 1; transform: translateX(-50%) scale(1); }
+  }
+
+  @keyframes slideUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUpBounce {
+    0%   { opacity: 0; transform: translateY(40px); }
+    65%  { transform: translateY(-6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    0%   { opacity: 0; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ============================================
+     TITLE CARD — Credential + Products layout
+     ============================================ */
+  .slide.title-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f9f5 40%, #edf5ed 70%, #f8fbf8 100%);
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .title-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 35%, rgba(20,168,0,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 65%, rgba(20,168,0,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(20,168,0,0.04) 0%, transparent 40%);
+    animation: pulseGlow 3s ease-in-out infinite alternate;
+    z-index: 1;
+  }
+
+  @keyframes pulseGlow {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+  }
+
+  .title-card .credential {
+    font-size: 14px;
+    font-weight: 600;
+    color: #14a800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    position: relative; z-index: 2;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: slideUp 0.3s ease-out 0.1s forwards;
+  }
+
+  .title-card h1 {
+    font-size: 72px;
+    font-weight: 900;
+    color: #001e00;
+    letter-spacing: -3px;
+    text-align: center;
+    line-height: 1.05;
+    position: relative; z-index: 2;
+    margin-bottom: 12px;
+    opacity: 0; transform: translateY(40px);
+    animation: slideUpBounce 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  }
+
+  .title-card h1 .accent {
+    background: linear-gradient(135deg, #14a800, #108a00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-card .proof {
+    font-size: 16px;
+    color: rgba(0,30,0,0.4);
+    position: relative; z-index: 2;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: slideUp 0.3s ease-out 0.65s forwards;
+  }
+
+  .title-card .proof a {
+    color: #14a800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Product trio row */
+  .title-card .products {
+    display: flex;
+    gap: 40px;
+    position: relative; z-index: 2;
+  }
+
+  .title-card .product-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 24px 32px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(20,168,0,0.15);
+    background: rgba(20,168,0,0.03);
+    min-width: 200px;
+    opacity: 0; transform: translateY(25px);
+  }
+
+  .title-card .product-card .p-icon {
+    font-size: 36px;
+  }
+
+  .title-card .product-card .p-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #14a800;
+  }
+
+  .title-card .product-card .p-desc {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0,30,0,0.45);
+    text-align: center;
+  }
+
+  /* Product card color variants — all Upwork green */
+  .title-card .product-card.blue {
+    border-color: rgba(20,168,0,0.18);
+    background: rgba(20,168,0,0.04);
+  }
+  .title-card .product-card.blue .p-name {
+    color: #14a800;
+  }
+
+  .title-card .product-card.green {
+    border-color: rgba(20,168,0,0.18);
+    background: rgba(20,168,0,0.04);
+  }
+  .title-card .product-card.green .p-name {
+    color: #108a00;
+  }
+
+  .title-card .product-card.purple {
+    border-color: rgba(20,168,0,0.18);
+    background: rgba(20,168,0,0.04);
+  }
+  .title-card .product-card.purple .p-name {
+    color: #14a800;
+  }
+
+  /* Product card stagger animations */
+  .title-card .product-card:nth-child(1) {
+    animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+  }
+  .title-card .product-card:nth-child(2) {
+    animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
+  }
+  .title-card .product-card:nth-child(3) {
+    animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+  }
+
+  /* Scrolling tech ticker at bottom */
+  .title-card .tech-ticker {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 2;
+    opacity: 0;
+    animation: slideUp 0.3s ease-out 1.5s forwards;
+  }
+
+  .title-card .ticker-track {
+    display: flex;
+    gap: 16px;
+    white-space: nowrap;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(0,30,0,0.25);
+    animation: tickerScroll 25s linear infinite;
+  }
+
+  .title-card .ticker-track span {
+    flex-shrink: 0;
+  }
+
+  @keyframes tickerScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ============================================
+     PRODUCT INTRO SLIDES
+     ============================================ */
+  .slide.product-intro {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .product-intro .glow {
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    opacity: 0.15;
+    filter: blur(90px);
+    z-index: 0;
+    background: #14a800;
+  }
+
+  .product-intro .ring {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 2px solid rgba(20,168,0,0.25);
+    opacity: 0;
+    z-index: 0;
+    animation: ringPulse 2.5s ease-out infinite;
+  }
+
+  @keyframes ringPulse {
+    0%   { transform: scale(0.6); opacity: 0.4; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+
+  .product-intro .product-icon {
+    font-size: 64px;
+    position: relative; z-index: 1;
+    opacity: 0; transform: scale(0.3);
+  }
+
+  .product-intro h1 {
+    font-size: 64px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    position: relative; z-index: 1;
+    opacity: 0; transform: translateY(30px);
+    background: linear-gradient(135deg, #14a800, #108a00);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .product-intro .product-tagline {
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(0,30,0,0.55);
+    position: relative; z-index: 1;
+    opacity: 0; transform: translateY(15px);
+  }
+
+  /* All product intros — white bg, green accents */
+  .product-intro.blue,
+  .product-intro.green,
+  .product-intro.purple,
+  .product-intro.indigo {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f9f5 50%, #eef5ee 100%);
+  }
+
+  @keyframes iconPop {
+    0%   { opacity: 0; transform: scale(0.3); }
+    60%  { transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ============================================
+     USE CASES CARD
+     ============================================ */
+  .slide.usecases-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f9f5 50%, #eef5ee 100%);
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .usecases-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(20,168,0,0.06) 0%, transparent 60%);
+  }
+
+  .usecases-card .section-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #14a800;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+  }
+
+  .usecases-card h1 {
+    font-size: 46px;
+    font-weight: 900;
+    color: #001e00;
+    text-align: center;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    position: relative; z-index: 1;
+  }
+
+  .usecases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 860px;
+    position: relative; z-index: 1;
+  }
+
+  .usecase-item {
+    background: #fff;
+    border: 1px solid rgba(20,168,0,0.12);
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  .usecase-item .icon { font-size: 32px; margin-bottom: 8px; }
+  .usecase-item h3 { font-size: 15px; font-weight: 800; color: #001e00; margin-bottom: 4px; }
+  .usecase-item p { font-size: 11px; color: rgba(0,30,0,0.5); line-height: 1.4; }
+
+  /* ============================================
+     CTA CARD
+     ============================================ */
+  .slide.cta-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f9f5 35%, #eef5ee 65%, #f8fbf8 100%);
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 700px 500px at 50% 28%, rgba(20,168,0,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 350px at 50% 78%, rgba(20,168,0,0.04) 0%, transparent 60%);
+    animation: pulseGlow 3s ease-in-out infinite alternate;
+  }
+
+  /* Animated glow orb behind button area */
+  .cta-card::after {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 200px;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse, rgba(20,168,0,0.12) 0%, rgba(20,168,0,0.06) 40%, transparent 70%);
+    filter: blur(50px);
+    z-index: 0;
+    animation: orbPulse 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes orbPulse {
+    0%   { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+    100% { opacity: 1;   transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  .cta-card h1 {
+    font-size: 60px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    position: relative; z-index: 1;
+    background: linear-gradient(135deg, #001e00 0%, #14a800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 20px rgba(20,168,0,0.15));
+  }
+
+  .cta-card .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 52px;
+    background: linear-gradient(135deg, #14a800, #108a00);
+    border-radius: 16px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    box-shadow:
+      0 8px 40px rgba(20,168,0,0.35),
+      0 0 60px rgba(20,168,0,0.15);
+    position: relative; z-index: 1;
+    border: none;
+  }
+
+  @keyframes ctaGlow {
+    0%, 100% { box-shadow: 0 8px 40px rgba(20,168,0,0.35), 0 0 60px rgba(20,168,0,0.15); }
+    50%      { box-shadow: 0 12px 60px rgba(20,168,0,0.5), 0 0 100px rgba(20,168,0,0.25); }
+  }
+
+  .cta-card .cta-button .arrow { font-size: 26px; }
+
+  .cta-card .stack-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(0,30,0,0.25);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+    margin-top: 2px;
+  }
+
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 780px;
+    position: relative; z-index: 1;
+  }
+
+  .tech-tag {
+    padding: 5px 13px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(0,30,0,0.5);
+    background: rgba(20,168,0,0.03);
+    border: 1px solid rgba(20,168,0,0.1);
+    opacity: 0;
+  }
+
+  .tech-tag.highlight {
+    color: #108a00;
+    font-weight: 700;
+    border-color: rgba(20,168,0,0.3);
+    background: rgba(20,168,0,0.08);
+    box-shadow: 0 0 12px rgba(20,168,0,0.06);
+  }
+
+  .cta-card .contact {
+    font-size: 13px;
+    color: rgba(0,30,0,0.35);
+    position: relative; z-index: 1;
+    letter-spacing: 0.5px;
+  }
+
+  .cta-card .divider {
+    width: 50px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(20,168,0,0.25), transparent);
+    position: relative; z-index: 1;
+  }
+
+  .cta-card .process-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative; z-index: 1;
+  }
+
+  .cta-card .process-step,
+  .cta-card .process-arrow {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  .cta-card .process-step {
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #001e00;
+    background: rgba(20,168,0,0.04);
+    border: 1px solid rgba(20,168,0,0.15);
+    letter-spacing: 0.3px;
+    position: relative;
+  }
+
+  /* Research — solid Upwork green */
+  .cta-card .process-step:nth-child(1) {
+    color: #fff;
+    border-color: #14a800;
+    background: #14a800;
+    box-shadow: 0 4px 20px rgba(20,168,0,0.25);
+  }
+
+  .cta-card .process-step:nth-child(3) {
+    color: #001e00;
+    border-color: rgba(20,168,0,0.2);
+    background: rgba(20,168,0,0.05);
+  }
+
+  .cta-card .process-step:nth-child(5) {
+    color: #001e00;
+    border-color: rgba(20,168,0,0.2);
+    background: rgba(20,168,0,0.05);
+  }
+
+  /* Deploy — solid Upwork green */
+  .cta-card .process-step:nth-child(7) {
+    color: #fff;
+    border-color: #14a800;
+    background: #14a800;
+    box-shadow: 0 4px 20px rgba(20,168,0,0.25);
+  }
+
+  .cta-card .process-arrow {
+    font-size: 22px;
+    color: #14a800;
+    padding: 0 14px;
+    font-weight: 400;
+  }
+
+  .cta-card .pitch-tagline {
+    font-size: 16px;
+    color: rgba(0,30,0,0.45);
+    line-height: 1.6;
+    text-align: center;
+    position: relative; z-index: 1;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  .title-card .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(0,30,0,0.3);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    position: relative; z-index: 2;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: slideUp 0.3s ease-out 0.65s forwards;
+  }
+
+  /* ============================================
+     PROGRESS BAR
+     ============================================ */
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #14a800, #108a00, #0d7a00);
+    z-index: 100;
+    animation: progress 65s linear forwards;
+  }
+
+  @keyframes progress {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+
+  /* =============================================
+     SLIDE TIMING — 65s total, 17 slides
+     =============================================
+     Slide 1:  Title           0.0s -  3.0s  (3.0s)
+     Slide 2:  RAGChat Intro   3.0s -  6.0s  (3.0s)
+     Slide 3:  KB              6.0s -  9.5s  (3.5s)
+     Slide 4:  Chat            9.5s - 13.0s  (3.5s)
+     Slide 5:  Gaps           13.0s - 16.5s  (3.5s)
+     Slide 6:  VoiceBot Intro 16.5s - 19.5s  (3.0s)
+     Slide 7:  Voice Chat     19.5s - 23.0s  (3.5s)
+     Slide 8:  Escalation     23.0s - 26.5s  (3.5s)
+     Slide 9:  OmniBot Intro  26.5s - 29.5s  (3.0s)
+     Slide 10: Channels       29.5s - 33.0s  (3.5s)
+     Slide 11: Inbox          33.0s - 36.5s  (3.5s)
+     Slide 12: Escalated      36.5s - 40.0s  (3.5s)
+     Slide 13: Platform Intro 40.0s - 43.0s  (3.0s)
+     Slide 14: Dashboard      43.0s - 46.5s  (3.5s)
+     Slide 15: Analytics      46.5s - 50.0s  (3.5s)
+     Slide 16: Use Cases      50.0s - 55.5s  (5.5s)
+     Slide 17: CTA+Stack      55.5s - 65.0s  (9.5s)
+     Fade = 0.5s = 0.77% of 65s
+     ============================================= */
+
+  @keyframes fadeSlide1 {
+    0%      { opacity: 0; }
+    0.77%   { opacity: 1; }
+    3.85%   { opacity: 1; }
+    4.62%   { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide2 {
+    0%      { opacity: 0; }
+    4.62%   { opacity: 0; }
+    5.38%   { opacity: 1; }
+    8.46%   { opacity: 1; }
+    9.23%   { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide3 {
+    0%      { opacity: 0; }
+    9.23%   { opacity: 0; }
+    10.00%  { opacity: 1; }
+    13.85%  { opacity: 1; }
+    14.62%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide4 {
+    0%      { opacity: 0; }
+    14.62%  { opacity: 0; }
+    15.38%  { opacity: 1; }
+    19.23%  { opacity: 1; }
+    20.00%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide5 {
+    0%      { opacity: 0; }
+    20.00%  { opacity: 0; }
+    20.77%  { opacity: 1; }
+    24.62%  { opacity: 1; }
+    25.38%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide6 {
+    0%      { opacity: 0; }
+    25.38%  { opacity: 0; }
+    26.15%  { opacity: 1; }
+    29.23%  { opacity: 1; }
+    30.00%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide7 {
+    0%      { opacity: 0; }
+    30.00%  { opacity: 0; }
+    30.77%  { opacity: 1; }
+    34.62%  { opacity: 1; }
+    35.38%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide8 {
+    0%      { opacity: 0; }
+    35.38%  { opacity: 0; }
+    36.15%  { opacity: 1; }
+    40.00%  { opacity: 1; }
+    40.77%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide9 {
+    0%      { opacity: 0; }
+    40.77%  { opacity: 0; }
+    41.54%  { opacity: 1; }
+    44.62%  { opacity: 1; }
+    45.38%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide10 {
+    0%      { opacity: 0; }
+    45.38%  { opacity: 0; }
+    46.15%  { opacity: 1; }
+    50.00%  { opacity: 1; }
+    50.77%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide11 {
+    0%      { opacity: 0; }
+    50.77%  { opacity: 0; }
+    51.54%  { opacity: 1; }
+    55.38%  { opacity: 1; }
+    56.15%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide12 {
+    0%      { opacity: 0; }
+    56.15%  { opacity: 0; }
+    56.92%  { opacity: 1; }
+    60.77%  { opacity: 1; }
+    61.54%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide13 {
+    0%      { opacity: 0; }
+    61.54%  { opacity: 0; }
+    62.31%  { opacity: 1; }
+    65.38%  { opacity: 1; }
+    66.15%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide14 {
+    0%      { opacity: 0; }
+    66.15%  { opacity: 0; }
+    66.92%  { opacity: 1; }
+    70.77%  { opacity: 1; }
+    71.54%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide15 {
+    0%      { opacity: 0; }
+    71.54%  { opacity: 0; }
+    72.31%  { opacity: 1; }
+    76.15%  { opacity: 1; }
+    76.92%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide16 {
+    0%      { opacity: 0; }
+    76.92%  { opacity: 0; }
+    77.69%  { opacity: 1; }
+    84.62%  { opacity: 1; }
+    85.38%  { opacity: 0; }
+    100%    { opacity: 0; }
+  }
+  @keyframes fadeSlide17 {
+    0%      { opacity: 0; }
+    85.38%  { opacity: 0; }
+    86.15%  { opacity: 1; }
+    100%    { opacity: 1; }
+  }
+
+  .slide:nth-child(1)  { animation: fadeSlide1  65s ease-in-out forwards; }
+  .slide:nth-child(2)  { animation: fadeSlide2  65s ease-in-out forwards; }
+  .slide:nth-child(3)  { animation: fadeSlide3  65s ease-in-out forwards; }
+  .slide:nth-child(4)  { animation: fadeSlide4  65s ease-in-out forwards; }
+  .slide:nth-child(5)  { animation: fadeSlide5  65s ease-in-out forwards; }
+  .slide:nth-child(6)  { animation: fadeSlide6  65s ease-in-out forwards; }
+  .slide:nth-child(7)  { animation: fadeSlide7  65s ease-in-out forwards; }
+  .slide:nth-child(8)  { animation: fadeSlide8  65s ease-in-out forwards; }
+  .slide:nth-child(9)  { animation: fadeSlide9  65s ease-in-out forwards; }
+  .slide:nth-child(10) { animation: fadeSlide10 65s ease-in-out forwards; }
+  .slide:nth-child(11) { animation: fadeSlide11 65s ease-in-out forwards; }
+  .slide:nth-child(12) { animation: fadeSlide12 65s ease-in-out forwards; }
+  .slide:nth-child(13) { animation: fadeSlide13 65s ease-in-out forwards; }
+  .slide:nth-child(14) { animation: fadeSlide14 65s ease-in-out forwards; }
+  .slide:nth-child(15) { animation: fadeSlide15 65s ease-in-out forwards; }
+  .slide:nth-child(16) { animation: fadeSlide16 65s ease-in-out forwards; }
+  .slide:nth-child(17) { animation: fadeSlide17 65s ease-in-out forwards; }
+
+  /* Ken Burns delays — screenshot slides */
+  .slide:nth-child(3)  .bg { animation-delay: 6.0s;  animation-play-state: running; }
+  .slide:nth-child(4)  .bg { animation-delay: 9.5s;  animation-play-state: running; }
+  .slide:nth-child(5)  .bg { animation-delay: 13.0s; animation-play-state: running; }
+  .slide:nth-child(7)  .bg { animation-delay: 19.5s; animation-play-state: running; }
+  .slide:nth-child(8)  .bg { animation-delay: 23.0s; animation-play-state: running; }
+  .slide:nth-child(10) .bg { animation-delay: 29.5s; animation-play-state: running; }
+  .slide:nth-child(11) .bg { animation-delay: 33.0s; animation-play-state: running; }
+  .slide:nth-child(12) .bg { animation-delay: 36.5s; animation-play-state: running; }
+  .slide:nth-child(14) .bg { animation-delay: 43.0s; animation-play-state: running; }
+  .slide:nth-child(15) .bg { animation-delay: 46.5s; animation-play-state: running; }
+
+  /* Overlay delays (0.3s after slide start) */
+  .slide:nth-child(3)  .overlay { animation-delay: 6.3s;  animation-play-state: running; }
+  .slide:nth-child(4)  .overlay { animation-delay: 9.8s;  animation-play-state: running; }
+  .slide:nth-child(5)  .overlay { animation-delay: 13.3s; animation-play-state: running; }
+  .slide:nth-child(7)  .overlay { animation-delay: 19.8s; animation-play-state: running; }
+  .slide:nth-child(8)  .overlay { animation-delay: 23.3s; animation-play-state: running; }
+  .slide:nth-child(10) .overlay { animation-delay: 29.8s; animation-play-state: running; }
+  .slide:nth-child(11) .overlay { animation-delay: 33.3s; animation-play-state: running; }
+  .slide:nth-child(12) .overlay { animation-delay: 36.8s; animation-play-state: running; }
+  .slide:nth-child(14) .overlay { animation-delay: 43.3s; animation-play-state: running; }
+  .slide:nth-child(15) .overlay { animation-delay: 46.8s; animation-play-state: running; }
+
+  /* Product intro animations */
+  /* Slide 2: RAGChat (starts 3.0s) */
+  .slide:nth-child(2) .product-icon { animation: iconPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 3.2s forwards; }
+  .slide:nth-child(2) h1 { animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 3.4s forwards; }
+  .slide:nth-child(2) .product-tagline { opacity: 0; animation: slideUp 0.3s ease-out 3.6s forwards; }
+
+  /* Slide 6: VoiceBot Pro (starts 16.5s) */
+  .slide:nth-child(6) .product-icon { animation: iconPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 16.7s forwards; }
+  .slide:nth-child(6) h1 { animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 16.9s forwards; }
+  .slide:nth-child(6) .product-tagline { opacity: 0; animation: slideUp 0.3s ease-out 17.1s forwards; }
+
+  /* Slide 9: OmniBot (starts 26.5s) */
+  .slide:nth-child(9) .product-icon { animation: iconPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 26.7s forwards; }
+  .slide:nth-child(9) h1 { animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 26.9s forwards; }
+  .slide:nth-child(9) .product-tagline { opacity: 0; animation: slideUp 0.3s ease-out 27.1s forwards; }
+
+  /* Slide 13: Platform (starts 40.0s) */
+  .slide:nth-child(13) .product-icon { animation: iconPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 40.2s forwards; }
+  .slide:nth-child(13) h1 { animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 40.4s forwards; }
+  .slide:nth-child(13) .product-tagline { opacity: 0; animation: slideUp 0.3s ease-out 40.6s forwards; }
+
+  /* Use Cases animations (slide 16, starts 50.0s) */
+  .usecases-card .section-label {
+    opacity: 0;
+    animation: slideUp 0.3s ease-out 50.3s forwards;
+  }
+  .usecases-card h1 {
+    opacity: 0; transform: translateY(25px);
+    animation: slideUpBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1) 50.5s forwards;
+  }
+  .usecase-item:nth-child(1) { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 50.8s forwards; }
+  .usecase-item:nth-child(2) { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 50.95s forwards; }
+  .usecase-item:nth-child(3) { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 51.1s forwards; }
+  .usecase-item:nth-child(4) { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 51.25s forwards; }
+  .usecase-item:nth-child(5) { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 51.4s forwards; }
+  .usecase-item:nth-child(6) { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) 51.55s forwards; }
+
+  /* CTA card animations (slide 17, starts 55.5s) */
+  .cta-card h1 {
+    opacity: 0; transform: translateY(40px);
+    animation: slideUpBounce 0.5s cubic-bezier(0.16, 1, 0.3, 1) 55.9s forwards;
+  }
+
+  /* Process steps — slow staggered reveal, one by one */
+  .cta-card .process-flow > :nth-child(1) { animation: slideUp 0.5s ease-out 56.4s forwards; }
+  .cta-card .process-flow > :nth-child(2) { animation: slideUp 0.4s ease-out 56.8s forwards; }
+  .cta-card .process-flow > :nth-child(3) { animation: slideUp 0.5s ease-out 57.2s forwards; }
+  .cta-card .process-flow > :nth-child(4) { animation: slideUp 0.4s ease-out 57.6s forwards; }
+  .cta-card .process-flow > :nth-child(5) { animation: slideUp 0.5s ease-out 58.0s forwards; }
+  .cta-card .process-flow > :nth-child(6) { animation: slideUp 0.4s ease-out 58.4s forwards; }
+  .cta-card .process-flow > :nth-child(7) { animation: slideUp 0.5s ease-out 58.8s forwards; }
+
+  .cta-card .pitch-tagline {
+    opacity: 0; transform: translateY(10px);
+    animation: slideUp 0.4s ease-out 59.4s forwards;
+  }
+  .cta-card .cta-button {
+    opacity: 0; transform: translateY(20px) scale(0.9);
+    animation: ctaPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 59.9s forwards, ctaGlow 2s ease-in-out 60.8s infinite;
+  }
+  @keyframes ctaPop {
+    55%  { transform: translateY(-3px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .cta-card .divider {
+    opacity: 0;
+    animation: slideUp 0.2s ease-out 60.6s forwards;
+  }
+  .cta-card .stack-label {
+    opacity: 0;
+    animation: slideUp 0.2s ease-out 60.7s forwards;
+  }
+
+  /* Tech tags — rapid machine-gun stagger (20 tags, 60ms intervals) */
+  .tech-tag:nth-child(1)  { animation: scaleIn 0.2s ease-out 60.90s forwards; }
+  .tech-tag:nth-child(2)  { animation: scaleIn 0.2s ease-out 60.96s forwards; }
+  .tech-tag:nth-child(3)  { animation: scaleIn 0.2s ease-out 61.02s forwards; }
+  .tech-tag:nth-child(4)  { animation: scaleIn 0.2s ease-out 61.08s forwards; }
+  .tech-tag:nth-child(5)  { animation: scaleIn 0.2s ease-out 61.14s forwards; }
+  .tech-tag:nth-child(6)  { animation: scaleIn 0.2s ease-out 61.20s forwards; }
+  .tech-tag:nth-child(7)  { animation: scaleIn 0.2s ease-out 61.26s forwards; }
+  .tech-tag:nth-child(8)  { animation: scaleIn 0.2s ease-out 61.32s forwards; }
+  .tech-tag:nth-child(9)  { animation: scaleIn 0.2s ease-out 61.38s forwards; }
+  .tech-tag:nth-child(10) { animation: scaleIn 0.2s ease-out 61.44s forwards; }
+  .tech-tag:nth-child(11) { animation: scaleIn 0.2s ease-out 61.50s forwards; }
+  .tech-tag:nth-child(12) { animation: scaleIn 0.2s ease-out 61.56s forwards; }
+  .tech-tag:nth-child(13) { animation: scaleIn 0.2s ease-out 61.62s forwards; }
+  .tech-tag:nth-child(14) { animation: scaleIn 0.2s ease-out 61.68s forwards; }
+  .tech-tag:nth-child(15) { animation: scaleIn 0.2s ease-out 61.74s forwards; }
+  .tech-tag:nth-child(16) { animation: scaleIn 0.2s ease-out 61.80s forwards; }
+  .tech-tag:nth-child(17) { animation: scaleIn 0.2s ease-out 61.86s forwards; }
+  .tech-tag:nth-child(18) { animation: scaleIn 0.2s ease-out 61.92s forwards; }
+  .tech-tag:nth-child(19) { animation: scaleIn 0.2s ease-out 61.98s forwards; }
+  .tech-tag:nth-child(20) { animation: scaleIn 0.2s ease-out 62.04s forwards; }
+
+  .cta-card .contact {
+    opacity: 0;
+    position: relative; z-index: 1;
+    animation: slideUp 0.3s ease-out 62.3s forwards;
+  }
+</style>
+</head>
+<body>
+
+<div class="reel">
+
+  <!-- Slide 1: Title Card -->
+  <div class="slide title-card">
+    <div class="credential">Full-Stack AI Engineer</div>
+    <h1>AI Chatbots<br>That <span class="accent">Ship</span>.</h1>
+    <div class="section-title">What I've Built</div>
+    <div class="products">
+      <div class="product-card blue">
+        <span class="p-icon">&#x1f9e0;</span>
+        <span class="p-name">RAGChat</span>
+        <span class="p-desc">Document-grounded AI chat</span>
+      </div>
+      <div class="product-card green">
+        <span class="p-icon">&#x1f399;&#xfe0f;</span>
+        <span class="p-name">VoiceBot Pro</span>
+        <span class="p-desc">AI phone agent + escalation</span>
+      </div>
+      <div class="product-card purple">
+        <span class="p-icon">&#x1f310;</span>
+        <span class="p-name">OmniBot</span>
+        <span class="p-desc">Multi-channel unified inbox</span>
+      </div>
+    </div>
+    <div class="tech-ticker">
+      <div class="ticker-track">
+        <span>FastAPI</span><span>&bull;</span>
+        <span>Next.js</span><span>&bull;</span>
+        <span>Pinecone</span><span>&bull;</span>
+        <span>WebSockets</span><span>&bull;</span>
+        <span>Vapi</span><span>&bull;</span>
+        <span>PostgreSQL</span><span>&bull;</span>
+        <span>Redis</span><span>&bull;</span>
+        <span>Docker</span><span>&bull;</span>
+        <span>AWS</span><span>&bull;</span>
+        <span>Nginx</span><span>&bull;</span>
+        <span>GitHub Actions</span><span>&bull;</span>
+        <span>OpenAI / Groq</span><span>&bull;</span>
+        <span>LangChain</span><span>&bull;</span>
+        <span>Alembic</span><span>&bull;</span>
+        <span>SSL/TLS</span><span>&bull;</span>
+        <!-- duplicate for seamless loop -->
+        <span>FastAPI</span><span>&bull;</span>
+        <span>Next.js</span><span>&bull;</span>
+        <span>Pinecone</span><span>&bull;</span>
+        <span>WebSockets</span><span>&bull;</span>
+        <span>Vapi</span><span>&bull;</span>
+        <span>PostgreSQL</span><span>&bull;</span>
+        <span>Redis</span><span>&bull;</span>
+        <span>Docker</span><span>&bull;</span>
+        <span>AWS</span><span>&bull;</span>
+        <span>Nginx</span><span>&bull;</span>
+        <span>GitHub Actions</span><span>&bull;</span>
+        <span>OpenAI / Groq</span><span>&bull;</span>
+        <span>LangChain</span><span>&bull;</span>
+        <span>Alembic</span><span>&bull;</span>
+        <span>SSL/TLS</span><span>&bull;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2: RAGChat Product Intro -->
+  <div class="slide product-intro blue">
+    <div class="glow"></div>
+    <div class="ring"></div>
+    <div class="product-icon">&#x1f9e0;</div>
+    <h1>RAGChat</h1>
+    <p class="product-tagline">AI Chat with Document Intelligence</p>
+  </div>
+
+  <!-- Slide 3: Knowledge Base -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/03-kb.png')"></div>
+    <div class="overlay">
+      <h2>Upload docs &mdash; auto-parsed &amp; embedded</h2>
+      <span class="step">Knowledge Base</span>
+    </div>
+  </div>
+
+  <!-- Slide 4: RAG Chat -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/04-chat.png')"></div>
+    <div class="overlay">
+      <h2>Instant answers with source citations</h2>
+      <span class="step">RAG Chat</span>
+    </div>
+  </div>
+
+  <!-- Slide 5: Knowledge Gaps -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/05-gaps.png')"></div>
+    <div class="overlay">
+      <h2>Detects gaps &mdash; then lets you fill them</h2>
+      <span class="step">Knowledge Gaps</span>
+    </div>
+  </div>
+
+  <!-- Slide 6: VoiceBot Pro Product Intro -->
+  <div class="slide product-intro green">
+    <div class="glow"></div>
+    <div class="ring"></div>
+    <div class="product-icon">&#x1f399;&#xfe0f;</div>
+    <h1>VoiceBot Pro</h1>
+    <p class="product-tagline">AI Phone Agent with Smart Escalation</p>
+  </div>
+
+  <!-- Slide 7: Voice Chat (Live Call) -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/voice-chat.png')"></div>
+    <div class="overlay">
+      <h2>Live AI calls with real-time transcription</h2>
+      <span class="step">Voice Calls</span>
+    </div>
+  </div>
+
+  <!-- Slide 8: Escalation Rules -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/escalation-rules.png')"></div>
+    <div class="overlay">
+      <h2>Configurable keyword &amp; sentiment triggers</h2>
+      <span class="step">Escalation Engine</span>
+    </div>
+  </div>
+
+  <!-- Slide 9: OmniBot Product Intro -->
+  <div class="slide product-intro purple">
+    <div class="glow"></div>
+    <div class="ring"></div>
+    <div class="product-icon">&#x1f310;</div>
+    <h1>OmniBot</h1>
+    <p class="product-tagline">WhatsApp, Web &amp; Telegram &mdash; One Unified Inbox</p>
+  </div>
+
+  <!-- Slide 10: Channels -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/10-channels.png')"></div>
+    <div class="overlay">
+      <h2>Deploy to WhatsApp, Widget, or Webhooks</h2>
+      <span class="step">Channels</span>
+    </div>
+  </div>
+
+  <!-- Slide 11: Unified Inbox -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/unified-inbox.png')"></div>
+    <div class="overlay">
+      <h2>Every conversation, every channel</h2>
+      <span class="step">Unified Inbox</span>
+    </div>
+  </div>
+
+  <!-- Slide 12: Escalated + Handoff -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/08-escalated.png')"></div>
+    <div class="overlay">
+      <h2>Seamless handoff &mdash; full context for humans</h2>
+      <span class="step">Human Handoff</span>
+    </div>
+  </div>
+
+  <!-- Slide 13: Platform Intro -->
+  <div class="slide product-intro indigo">
+    <div class="glow"></div>
+    <div class="ring"></div>
+    <div class="product-icon">&#x1f4ca;</div>
+    <h1>Built-In Analytics</h1>
+    <p class="product-tagline">Every chatbot ships with a real-time dashboard &amp; insights</p>
+  </div>
+
+  <!-- Slide 14: Dashboard (Platform) -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/02-dashboard.png')"></div>
+    <div class="overlay">
+      <h2>All products, one command center</h2>
+      <span class="step">Platform Dashboard</span>
+    </div>
+  </div>
+
+  <!-- Slide 15: Analytics (Platform) -->
+  <div class="slide screenshot">
+    <div class="bg" style="background-image: url('screenshots/09-analytics.png')"></div>
+    <div class="overlay">
+      <h2>Sentiment, intent &amp; lead scoring &mdash; real-time</h2>
+      <span class="step">Platform Analytics</span>
+    </div>
+  </div>
+
+  <!-- Slide 16: Use Cases -->
+  <div class="slide usecases-card">
+    <div class="section-label">What I Can Build For You</div>
+    <h1>Your industry, your chatbot</h1>
+    <div class="usecases-grid">
+      <div class="usecase-item">
+        <div class="icon">&#x1f3e5;</div>
+        <h3>Healthcare</h3>
+        <p>Patient FAQ bots, appointment scheduling, triage</p>
+      </div>
+      <div class="usecase-item">
+        <div class="icon">&#x1f6d2;</div>
+        <h3>E-Commerce</h3>
+        <p>Product Q&amp;A, order tracking, returns automation</p>
+      </div>
+      <div class="usecase-item">
+        <div class="icon">&#x1f3e0;</div>
+        <h3>Real Estate</h3>
+        <p>Property inquiries, virtual tours, lead qualification</p>
+      </div>
+      <div class="usecase-item">
+        <div class="icon">&#x1f4da;</div>
+        <h3>Education</h3>
+        <p>Course Q&amp;A, enrollment support, student services</p>
+      </div>
+      <div class="usecase-item">
+        <div class="icon">&#x2696;&#xfe0f;</div>
+        <h3>Legal</h3>
+        <p>Case intake, document Q&amp;A, client portals</p>
+      </div>
+      <div class="usecase-item">
+        <div class="icon">&#x1f4b0;</div>
+        <h3>Finance</h3>
+        <p>Account support, compliance FAQs, onboarding</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 17: CTA + Tech Stack -->
+  <div class="slide cta-card">
+    <h1>Your problem. My solution.</h1>
+    <div class="process-flow">
+      <span class="process-step">Research</span>
+      <span class="process-arrow">&rarr;</span>
+      <span class="process-step">Design</span>
+      <span class="process-arrow">&rarr;</span>
+      <span class="process-step">Build</span>
+      <span class="process-arrow">&rarr;</span>
+      <span class="process-step">Deploy</span>
+    </div>
+    <p class="pitch-tagline">I start with your use case, not a template. Product thinking meets full-stack engineering.</p>
+    <a href="https://www.upwork.com/freelancers/~01ccf84c01cc1a5bba" class="cta-button" target="_blank">
+      Hire me on Upwork <span class="arrow">&rarr;</span>
+    </a>
+    <div class="divider"></div>
+    <div class="stack-label">My Stack</div>
+    <div class="tech-stack">
+      <span class="tech-tag highlight">Python</span>
+      <span class="tech-tag highlight">FastAPI</span>
+      <span class="tech-tag highlight">React / Next.js</span>
+      <span class="tech-tag highlight">TypeScript</span>
+      <span class="tech-tag">LangChain</span>
+      <span class="tech-tag">OpenAI / Groq</span>
+      <span class="tech-tag">Pinecone</span>
+      <span class="tech-tag">PostgreSQL</span>
+      <span class="tech-tag">Redis</span>
+      <span class="tech-tag">Vapi (Voice AI)</span>
+      <span class="tech-tag">WhatsApp / Twilio</span>
+      <span class="tech-tag">WebSockets</span>
+      <span class="tech-tag">Docker</span>
+      <span class="tech-tag">AWS EC2 / RDS</span>
+      <span class="tech-tag">Nginx</span>
+      <span class="tech-tag">GitHub Actions</span>
+      <span class="tech-tag">Alembic</span>
+      <span class="tech-tag">Linux</span>
+      <span class="tech-tag">SSL / TLS</span>
+      <span class="tech-tag">Stripe</span>
+    </div>
+    <div class="contact">bot.fenloai.com &bull; Full-stack AI engineer &bull; Available for contract &amp; long-term</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar"></div>
+
+</div>
+
+<script>
+(function() {
+  var reel = document.querySelector('.reel');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 800);
+    reel.style.setProperty('--reel-scale', s);
+  }
+  window.addEventListener('resize', fit);
+  fit();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "MessageSid": "SM9876543210fedcba9876543210fedcba",
+  "SmsSid": "SM9876543210fedcba9876543210fedcba",
+  "AccountSid": "ACtest00000000000000000000000000",
+  "MessagingServiceSid": "MG1234567890abcdef1234567890abcdef",
+  "From": "whatsapp:+15551234567",
+  "To": "whatsapp:+14155238886",
+  "Body": "Check out this image",
+  "NumMedia": "1",
+  "MediaUrl0": "https://api.twilio.com/2010-04-01/Accounts/AC.../Messages/SM.../Media/ME...",
+  "MediaContentType0": "image/jpeg",
+  "NumSegments": "1",
+  "SmsStatus": "received",
+  "ApiVersion": "2010-04-01"
+}

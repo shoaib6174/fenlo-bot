@@ -1,0 +1,31 @@
+{
+  "name": "@botforge/widget",
+  "version": "1.0.0",
+  "description": "BotForge embeddable chat widget",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "size": "ls -lh dist/*.js | awk '{print $5, $9}'"
+  },
+  "dependencies": {
+    "preact": "^10.19.3"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.8.1",
+    "@testing-library/preact": "^3.2.3",
+    "esbuild": "^0.20.0",
+    "jsdom": "^24.0.0",
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "chatbot",
+    "widget",
+    "embeddable",
+    "preact"
+  ],
+  "author": "BotForge",
+  "license": "MIT"
+}

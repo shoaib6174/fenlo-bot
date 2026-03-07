@@ -1,0 +1,13 @@
+{
+  "MessageSid": "SM1234567890abcdef1234567890abcdef",
+  "SmsSid": "SM1234567890abcdef1234567890abcdef",
+  "AccountSid": "ACtest00000000000000000000000000",
+  "MessagingServiceSid": "MG1234567890abcdef1234567890abcdef",
+  "From": "whatsapp:+15551234567",
+  "To": "whatsapp:+14155238886",
+  "Body": "Hello from WhatsApp",
+  "NumMedia": "0",
+  "NumSegments": "1",
+  "SmsStatus": "received",
+  "ApiVersion": "2010-04-01"
+}

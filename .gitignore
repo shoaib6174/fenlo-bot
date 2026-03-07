@@ -1,0 +1,73 @@
+# Environment variables (NEVER commit these - they contain secrets!)
+.env
+.env.*
+!.env.example
+
+# AWS deployment credentials
+.aws-credentials.txt
+AWS_DEPLOYMENT_INFO.md
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+.serena/
+
+# Database
+*.db
+*.sqlite3
+
+# Node modules
+frontend/widget/node_modules/
+
+# Playwright MCP debug artifacts
+.playwright-mcp/
+
+# Build/coverage artifacts
+coverage.json
+htmlcov/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+
+# Claude Code local settings
+.claude/settings.local.json
+.claude/CLAUDE.local.md
+
+# Root-level screenshots (dev artifacts)
+/inbox-*.png
+
+# Large demo videos
+frontend/public/demo/*.mp4
+frontend/public/demo/*.mov
+frontend/public/demo/*.avi

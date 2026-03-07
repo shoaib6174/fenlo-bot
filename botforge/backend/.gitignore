@@ -1,0 +1,33 @@
+# Environment variables (NEVER commit - contains secrets!)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Alembic
+alembic/versions/*.pyc
+
+# Uploads (local development)
+uploads/
+
+# Database
+*.db
+*.sqlite3
+landing-page-full.png
+*.png

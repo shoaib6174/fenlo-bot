@@ -1,0 +1,63 @@
+# Pre-commit hooks for BotForge
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Secrets detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json
+
+  # Additional secret patterns (custom)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-json
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+        name: Detect private keys (PEM, SSH)
+
+  # Python-specific
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Custom secret patterns (Groq, OpenAI)
+  - repo: local
+    hooks:
+      - id: block-api-keys
+        name: Block API keys (Groq, OpenAI)
+        entry: scripts/check-secrets.sh
+        language: script
+        files: \.(py|js|ts|tsx|json|yaml|yml|sh|md|txt)$
+        exclude: \.secrets\.baseline|\.pre-commit-config\.yaml|scripts/check-secrets\.sh|docs/work-log/
+
+      - id: frontend-typecheck
+        name: Frontend TypeScript Check
+        entry: bash -c 'cd frontend && npx tsc --noEmit --skipLibCheck'
+        language: system
+        pass_filenames: false
+        files: '^frontend/(app|components|hooks|lib|providers|stores)/.*\.(ts|tsx)$'
+        exclude: '^frontend/widget/'
+        stages: [pre-commit]
+
+      - id: frontend-lint
+        name: Frontend ESLint
+        entry: bash -c 'cd frontend && npm run lint -- --max-warnings=0'
+        language: system
+        pass_filenames: false
+        files: '^frontend/(app|components|hooks|lib|providers|stores)/.*\.(ts|tsx|js|jsx)$'
+        exclude: '^frontend/widget/'
+        stages: [pre-commit]

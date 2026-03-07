@@ -1,0 +1,37 @@
+[Unit]
+Description=BotForge Frontend (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=botforge
+Group=botforge
+WorkingDirectory=/opt/botforge/app/frontend
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/npm start
+
+# Memory limit for m7i-flex.large (8GB RAM)
+MemoryMax=512M
+MemoryHigh=450M
+
+# Restart policy
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/botforge
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=botforge-frontend
+
+[Install]
+WantedBy=multi-user.target

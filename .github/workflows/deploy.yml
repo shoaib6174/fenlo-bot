@@ -1,0 +1,132 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 30m
+          script: |
+            set -e
+            APP_DIR="/opt/botforge/app"
+            BACKEND_DIR="${APP_DIR}/botforge/backend"
+            FRONTEND_DIR="${APP_DIR}/frontend"
+
+            echo "=== Deploying BotForge ==="
+            # Note: API keys are managed via AWS SSM Parameter Store.
+            # The systemd ExecStartPre script (fetch-ssm-secrets.sh) fetches
+            # secrets from SSM and writes .env on every service restart.
+            # To update keys: aws ssm put-parameter --name "/botforge/prod/KEY_NAME" ...
+
+            # Tag current commit as last-known-good before deploying
+            CURRENT_COMMIT=$(sudo -u botforge git -C "$APP_DIR" rev-parse HEAD)
+            sudo -u botforge git -C "$APP_DIR" tag -f last-deploy-success "$CURRENT_COMMIT"
+            echo "Tagged current commit as last-deploy-success: $CURRENT_COMMIT"
+
+            # Pull latest code (reset to match origin — all changes flow through git)
+            sudo -u botforge git -C "$APP_DIR" fetch origin main
+            sudo -u botforge git -C "$APP_DIR" reset --hard origin/main
+            NEW_COMMIT=$(sudo -u botforge git -C "$APP_DIR" rev-parse HEAD)
+            echo "Deploying commit: $NEW_COMMIT"
+
+            # Rollback function
+            rollback() {
+              echo "❌ Deploy failed, rolling back to last-deploy-success"
+              sudo -u botforge git -C "$APP_DIR" reset --hard last-deploy-success
+              sudo systemctl restart botforge-api
+              sudo systemctl restart botforge-worker
+              sudo systemctl restart botforge-frontend
+              echo "Rolled back to commit: $CURRENT_COMMIT"
+              exit 1
+            }
+
+            # Update backend (runs as botforge — venv is self-contained)
+            sudo -u botforge "${BACKEND_DIR}/.venv/bin/pip" install -e "${BACKEND_DIR}" --quiet || rollback
+            sudo -u botforge bash -c "cd ${BACKEND_DIR} && .venv/bin/alembic upgrade head" || rollback
+
+            # Build frontend in temp directory first
+            TEMP_DIR=$(mktemp -d)
+            trap "sudo rm -rf $TEMP_DIR" EXIT
+            echo "Building frontend in temp directory: $TEMP_DIR"
+
+            # Copy frontend to temp (excluding node_modules and .next)
+            sudo rsync -a --exclude='node_modules' --exclude='.next' "${FRONTEND_DIR}/" "$TEMP_DIR/"
+
+            # Copy node_modules from live frontend (reuse existing packages)
+            if [ -d "${FRONTEND_DIR}/node_modules" ]; then
+              sudo cp -r "${FRONTEND_DIR}/node_modules" "$TEMP_DIR/"
+            fi
+
+            # Build in temp directory
+            # .env.production is in git with NEXT_PUBLIC_* vars (no NEXT_PUBLIC_API_URL = same-origin)
+            sudo bash -c "cd $TEMP_DIR && npm install --production=false && npm run build" || rollback
+
+            # Build succeeded — swap .next directory into place
+            sudo rm -rf "${FRONTEND_DIR}/.next"
+            sudo mv "$TEMP_DIR/.next" "${FRONTEND_DIR}/"
+            sudo chown -R botforge:botforge "${FRONTEND_DIR}"
+            echo "Frontend build swapped into place"
+
+            # Restart services
+            sudo systemctl restart botforge-api
+            sudo systemctl restart botforge-worker
+            sudo systemctl restart botforge-frontend
+
+            # Wait for services to initialize
+            # SSM fetch ~10s + uvicorn startup ~15s on m7i-flex.large
+            echo "Waiting for services to start up..."
+            sleep 30
+
+            # Comprehensive health checks
+            echo "=== Running Health Checks ==="
+
+            # 1. API health (includes DB + Redis connectivity)
+            # Retry once after 20s if first check fails (model loading can be slow)
+            echo "Checking API health..."
+            curl -sf http://localhost:8000/api/health/ready || {
+              echo "API not ready yet, retrying in 20s..."
+              sleep 20
+              curl -sf http://localhost:8000/api/health/ready || {
+                echo "❌ API health check failed (DB or Redis unreachable)"
+                rollback
+              }
+            }
+            echo "✅ API healthy"
+
+            # 2. Frontend health (Next.js on port 3000)
+            echo "Checking frontend..."
+            curl -sf http://localhost:3000 > /dev/null || {
+              echo "❌ Frontend health check failed"
+              rollback
+            }
+            echo "✅ Frontend healthy"
+
+            # 3. Worker health (systemd service active)
+            echo "Checking ARQ worker..."
+            sudo systemctl is-active --quiet botforge-worker || {
+              echo "❌ ARQ worker is not running"
+              rollback
+            }
+            echo "✅ ARQ worker healthy"
+
+            # 4. Redis connectivity (already verified by API /ready, but double-check)
+            echo "Checking Redis..."
+            redis-cli ping > /dev/null || {
+              echo "⚠️  Redis unreachable (degraded mode active)"
+            }
+            echo "✅ Redis healthy"
+
+            echo "=== Deploy Complete ==="
+            echo "All services healthy at commit: $NEW_COMMIT"

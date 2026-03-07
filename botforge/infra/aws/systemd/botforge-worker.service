@@ -1,0 +1,37 @@
+[Unit]
+Description=BotForge ARQ Worker (Background Jobs)
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=botforge
+Group=botforge
+WorkingDirectory=/opt/botforge/app/botforge/backend
+Environment=PATH=/opt/botforge/app/botforge/backend/.venv/bin:/usr/local/bin:/usr/bin
+ExecStart=/opt/botforge/app/botforge/backend/.venv/bin/python -m arq worker.WorkerSettings
+
+# Memory limit for m7i-flex.large (8GB RAM)
+MemoryMax=1G
+MemoryHigh=900M
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/botforge
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=botforge-worker
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+[Unit]
+Description=BotForge API (FastAPI/Uvicorn)
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=botforge
+Group=botforge
+WorkingDirectory=/opt/botforge/app/botforge/backend
+Environment=PATH=/opt/botforge/app/botforge/backend/.venv/bin:/usr/local/bin:/usr/bin
+ExecStartPre=/bin/bash /opt/botforge/app/botforge/infra/aws/fetch-ssm-secrets.sh
+ExecStart=/opt/botforge/app/botforge/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
+
+# Memory limit for m7i-flex.large (8GB RAM)
+MemoryMax=2G
+MemoryHigh=1800M
+
+# Restart policy
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/botforge
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=botforge-api
+
+[Install]
+WantedBy=multi-user.target
