@@ -2,7 +2,7 @@
 name = "botforge-backend"
 version = "0.1.0"
 description = "BotForge AI chatbot platform — backend API"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
@@ -40,6 +40,8 @@ dependencies = [
     "openinference-instrumentation-groq>=0.1.0",
     "openinference-instrumentation-openai>=0.1.0",
     "openinference-instrumentation-langchain>=0.1.0",
+    "ragas>=0.4.3",
+    "datasets>=4.6.1",
 ]
 
 [project.optional-dependencies]

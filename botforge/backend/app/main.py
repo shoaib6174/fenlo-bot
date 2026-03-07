@@ -361,6 +361,7 @@ from app.api import (  # noqa: E402
     dashboard,
     dashboard_ws,
     docs,
+    eval,
     export,
     handoff,
     health,
@@ -416,4 +417,5 @@ app.include_router(api_keys.router)
 app.include_router(branding.router)
 app.include_router(booking.router)
 app.include_router(dashboard_ws.router)
+app.include_router(eval.router)
 app.include_router(public.router)
