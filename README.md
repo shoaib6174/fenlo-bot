@@ -16,6 +16,7 @@ A production-grade AI chatbot platform that lets businesses deploy intelligent c
 | **VoiceBot Pro** | AI phone agent via Vapi. Escalation rules (keyword, sentiment, silence detection), call transcripts, live monitoring. |
 | **OmniBot Inbox** | Unified inbox across WhatsApp (Twilio), embeddable web widget, Telegram. Human handoff to Freshdesk when needed. |
 | **Analytics** | Sentiment analysis, intent classification, lead scoring, quality metrics, AI-generated weekly insights. |
+| **ML Engineering** | LLM observability (Arize AX), RAG evaluation pipeline (RAGAS), QLoRA fine-tuning for domain adaptation. |
 | **GDPR** | Data export, account purge with audit trail, consent management. |
 
 ## Screenshots
@@ -107,6 +108,9 @@ User Message
 - **Workspace Isolation** -- Every DB query scoped to `workspace_id`. JWT carries workspace context. Multi-tenant by design.
 - **Event Bus** -- Decoupled cross-module communication (e.g., knowledge gap created triggers analytics update).
 - **Background Workers** -- ARQ (Redis-backed) for async document processing: parse, chunk, embed, upsert to Pinecone.
+- **LLM Observability** -- OpenTelemetry auto-instrumentation via Arize AX. Every LLM call (Groq, OpenAI, LangChain) traced automatically — latency, tokens, errors — without manual decorators.
+- **RAG Evaluation** -- RAGAS metrics (faithfulness, answer relevancy, context precision) using Groq as the evaluator LLM. Runs on production data through admin-only API endpoints.
+- **Domain Fine-tuning** -- QLoRA (4-bit NF4 + LoRA r=16) on Llama 3.1 8B for domain-specific response style. Produces a 27MB adapter vs 16GB full model. Training tracked with W&B.
 
 ## Tech Stack
 
@@ -117,6 +121,7 @@ User Message
 | **Database** | PostgreSQL (RDS), Redis (cache + job queue) |
 | **Vector Store** | Pinecone (semantic search + RAG retrieval) |
 | **LLM** | Groq (primary) / OpenAI (fallback) with circuit breaker |
+| **ML / Eval** | Arize AX (tracing), RAGAS (evaluation), QLoRA + PEFT + TRL (fine-tuning), W&B (experiment tracking) |
 | **Voice** | Vapi (phone agent, WebRTC, transcription) |
 | **Channels** | Twilio (WhatsApp), embeddable JS widget (HMAC auth), Telegram Bot API |
 | **Handoff** | Freshdesk (ticket creation, auto-resolve stale conversations) |
@@ -128,11 +133,16 @@ User Message
 ```
 botforge/backend/                  # FastAPI API server
   app/
-    api/                           # Route handlers (auth, chat, kb, voice, channels...)
+    api/                           # Route handlers (auth, chat, kb, voice, eval...)
     core/                          # Conversation engine, LLM router, pipeline steps
+      instrumentation.py           # Arize AX auto-tracing setup
+      evaluation.py                # RAGAS evaluation engine
     models/                        # SQLAlchemy ORM (14+ tables)
     services/                      # Voice provider, escalation engine, handoff
     middleware/                    # CORS, RBAC, rate limiting, workspace scope
+  scripts/
+    finetune/                      # QLoRA training pipeline (config, train, merge)
+    export_eval_dataset.py         # Export production data for RAGAS evaluation
   worker.py                        # ARQ background jobs (doc processing, embeddings)
   tests/                           # Unit + integration tests
   alembic/                         # Database migrations
@@ -144,6 +154,8 @@ frontend/                          # Next.js 15 application
   widget/                          # Embeddable chat widget (standalone build)
 docker-compose.yml                 # Local dev: Postgres + Redis
 ```
+
+See [docs/ml-engineering.md](docs/ml-engineering.md) for detailed documentation on the observability, evaluation, and fine-tuning systems.
 
 ## Local Development
 
@@ -187,4 +199,3 @@ npx playwright test         # E2E
 ## License
 
 Proprietary. All rights reserved.
-
