@@ -1,201 +1,132 @@
-# Fenlo AI — Full-Stack AI Chatbot Platform
+# Fenlo — AI Chatbot & Voice Agent Platform
 
-A production-grade AI chatbot platform that lets businesses deploy intelligent customer support across web, WhatsApp, voice, and more. Upload your documents, get a working AI agent in minutes.
+> Production-grade AI chatbot platform with RAG, voice agents, multi-channel inbox, and LLM observability. Live at [bot.fenloai.com](https://bot.fenloai.com).
 
-**Live**: [bot.fenloai.com](https://bot.fenloai.com)
+## Problem Statement
 
----
+Businesses need intelligent customer-facing AI that can:
+- Answer questions from documents with citation-backed accuracy and knowledge gap detection
+- Handle voice phone calls with natural conversation, real-time transcription, and smart escalation
+- Deploy across WhatsApp, Telegram, websites, and Zapier from a single unified inbox
+- Provide observability into LLM performance with tracing and evaluation
 
-![Dashboard](frontend/public/demo/screenshots/02-dashboard.png)
-
-## What It Does
-
-| Module | Description |
-|--------|------------|
-| **RAG Chat** | Upload PDFs/DOCX/TXT, ask questions, get answers with source citations. Detects knowledge gaps automatically. |
-| **VoiceBot Pro** | AI phone agent via Vapi. Escalation rules (keyword, sentiment, silence detection), call transcripts, live monitoring. |
-| **OmniBot Inbox** | Unified inbox across WhatsApp (Twilio), embeddable web widget, Telegram. Human handoff to Freshdesk when needed. |
-| **Analytics** | Sentiment analysis, intent classification, lead scoring, quality metrics, AI-generated weekly insights. |
-| **ML Engineering** | LLM observability (Arize AX), RAG evaluation pipeline (RAGAS), QLoRA fine-tuning for domain adaptation. |
-| **GDPR** | Data export, account purge with audit trail, consent management. |
-
-## Screenshots
-
-<details>
-<summary><strong>RAG Chat with Source Citations</strong></summary>
-
-![Chat](docs/sales/fiverr/01-chat-with-citations.png)
-
-Every response includes references to the source documents it used.
-</details>
-
-<details>
-<summary><strong>Knowledge Base Management</strong></summary>
-
-![Knowledge Base](frontend/public/demo/screenshots/03-kb.png)
-
-Upload documents (PDF, DOCX, TXT). They get chunked, embedded, and indexed automatically.
-</details>
-
-<details>
-<summary><strong>Knowledge Gap Detection</strong></summary>
-
-![Gaps](frontend/public/demo/screenshots/05-gaps.png)
-
-The system tracks questions it couldn't answer and flags content gaps for you to fill.
-</details>
-
-<details>
-<summary><strong>Voice Agent with Escalation Rules</strong></summary>
-
-![Voice](frontend/public/demo/screenshots/06-voice.png)
-
-Configure keyword, sentiment, and silence-based escalation rules. Calls get transcribed in real time.
-</details>
-
-<details>
-<summary><strong>Unified Inbox with Human Handoff</strong></summary>
-
-![Inbox](frontend/public/demo/screenshots/07-inbox.png)
-
-All conversations in one place. Lead scores, sentiment tags, and one-click escalation to human agents.
-</details>
-
-<details>
-<summary><strong>Analytics Dashboard</strong></summary>
-
-![Analytics](docs/sales/fiverr/04-analytics.png)
-
-Message volume, sentiment trends, top questions, channel breakdown, quality scores.
-</details>
+Fenlo solves this with a unified platform: one backend, multiple channels, full reasoning traceability, and production-grade ML engineering.
 
 ## Architecture
 
 ```
-Browser --> Nginx (SSL termination)
-  |-- /api/*  --> FastAPI (REST + WebSocket)
-  |-- /*      --> Next.js (SSR + static)
-
-                FastAPI
-                  |
-    +-------------+-------------+
-    |             |             |
-PostgreSQL     Redis        Pinecone
- (data)     (cache/queue)  (vectors)
+[Customer] → [Next.js 15 Frontend] → [FastAPI Backend]
+                                              ↓
+                        ┌─────────────────────┼─────────────────────┐
+                        ↓                     ↓                     ↓
+                  [RAGChat]            [VoiceBot Pro]          [OmniBot]
+                        ↓                     ↓                     ↓
+                [Pinecone]               [Vapi]             [Twilio/WhatsApp]
+                [Groq/OpenAI]            [WebRTC]           [Telegram API]
+                [Arize AX]               [Freshdesk]        [Embeddable Widget]
+                [RAGAS]                                      [HMAC Auth]
 ```
-
-### Message Pipeline
-
-Every message flows through a composable pipeline of processing steps:
-
-```
-User Message
-  --> LoadContext        # conversation history + system prompt
-  --> PromptGuard        # input safety check
-  --> RAGRetrieval       # semantic search with Redis cache
-  --> LLMStream          # Groq (primary) --> OpenAI (fallback)
-  --> SentimentAnalysis  # positive / neutral / negative
-  --> IntentClassifier   # FAQ, sales, support, escalation
-  --> QualityScorer      # response quality 0.0-1.0
-  --> LeadScoring        # accumulated per conversation
-  --> Persistence        # save to DB
-```
-
-### Key Engineering Decisions
-
-- **LLM Router with Circuit Breaker** -- Groq as primary (fast, free), automatic failover to OpenAI after N failures. Self-heals when Groq recovers.
-- **Semantic Cache** -- Redis-backed query cache (SHA256 hash, 1hr TTL) to avoid redundant embedding + LLM calls.
-- **Workspace Isolation** -- Every DB query scoped to `workspace_id`. JWT carries workspace context. Multi-tenant by design.
-- **Event Bus** -- Decoupled cross-module communication (e.g., knowledge gap created triggers analytics update).
-- **Background Workers** -- ARQ (Redis-backed) for async document processing: parse, chunk, embed, upsert to Pinecone.
-- **LLM Observability** -- OpenTelemetry auto-instrumentation via Arize AX. Every LLM call (Groq, OpenAI, LangChain) traced automatically — latency, tokens, errors — without manual decorators.
-- **RAG Evaluation** -- RAGAS metrics (faithfulness, answer relevancy, context precision) using Groq as the evaluator LLM. Runs on production data through admin-only API endpoints.
-- **Domain Fine-tuning** -- QLoRA (4-bit NF4 + LoRA r=16) on Llama 3.1 8B for domain-specific response style. Produces a 27MB adapter vs 16GB full model. Training tracked with W&B.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui, Zustand, React Query |
-| **Backend** | FastAPI, Python 3.12, SQLAlchemy (async), Pydantic v2, LangChain |
-| **Database** | PostgreSQL (RDS), Redis (cache + job queue) |
-| **Vector Store** | Pinecone (semantic search + RAG retrieval) |
-| **LLM** | Groq (primary) / OpenAI (fallback) with circuit breaker |
-| **ML / Eval** | Arize AX (tracing), RAGAS (evaluation), QLoRA + PEFT + TRL (fine-tuning), W&B (experiment tracking) |
-| **Voice** | Vapi (phone agent, WebRTC, transcription) |
-| **Channels** | Twilio (WhatsApp), embeddable JS widget (HMAC auth), Telegram Bot API |
-| **Handoff** | Freshdesk (ticket creation, auto-resolve stale conversations) |
-| **Infra** | AWS EC2 + RDS (free tier), Nginx, systemd, GitHub Actions CI/CD |
-| **Testing** | pytest (388+ tests, 80%+ coverage), Vitest + Playwright (frontend) |
+### Frontend
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![React](https://img.shields.io/badge/React-19-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC)
+![shadcn/ui](https://img.shields.io/badge/shadcn/ui-latest-black)
+![Zustand](https://img.shields.io/badge/Zustand-State_Management-orange)
 
-## Project Structure
+### Backend
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-Async-blue)
+![Pydantic](https://img.shields.io/badge/Pydantic-v2-green)
+![LangChain](https://img.shields.io/badge/LangChain-Latest-white)
 
-```
-botforge/backend/                  # FastAPI API server
-  app/
-    api/                           # Route handlers (auth, chat, kb, voice, eval...)
-    core/                          # Conversation engine, LLM router, pipeline steps
-      instrumentation.py           # Arize AX auto-tracing setup
-      evaluation.py                # RAGAS evaluation engine
-    models/                        # SQLAlchemy ORM (14+ tables)
-    services/                      # Voice provider, escalation engine, handoff
-    middleware/                    # CORS, RBAC, rate limiting, workspace scope
-  scripts/
-    finetune/                      # QLoRA training pipeline (config, train, merge)
-    export_eval_dataset.py         # Export production data for RAGAS evaluation
-  worker.py                        # ARQ background jobs (doc processing, embeddings)
-  tests/                           # Unit + integration tests
-  alembic/                         # Database migrations
-frontend/                          # Next.js 15 application
-  app/                             # App Router (dashboard, chat, kb, voice, analytics...)
-  components/                      # UI components (shadcn/ui based)
-  hooks/                           # useChat, useRAGChat (WebSocket with backoff)
-  stores/                          # Zustand state management
-  widget/                          # Embeddable chat widget (standalone build)
-docker-compose.yml                 # Local dev: Postgres + Redis
-```
+### Data & ML
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RDS-blue)
+![Redis](https://img.shields.io/badge/Redis-Cache_&_Queue-red)
+![Pinecone](https://img.shields.io/badge/Pinecone-VectorDB-blue)
+![Groq](https://img.shields.io/badge/Groq-Primary_LLM-orange)
+![OpenAI](https://img.shields.io/badge/OpenAI-Fallback-green)
 
-See [docs/ml-engineering.md](docs/ml-engineering.md) for detailed documentation on the observability, evaluation, and fine-tuning systems.
+### ML Engineering
+![Arize](https://img.shields.io/badge/Arize_AX-LLM_Observability-purple)
+![RAGAS](https://img.shields.io/badge/RAGAS-Evaluation-blue)
+![Weights & Biases](https://img.shields.io/badge/W&B-Experiment_Tracking-yellow)
+![QLoRA](https://img.shields.io/badge/QLoRA-Fine_Tuning-orange)
 
-## Local Development
+## Quick Start
 
 ```bash
-# Prerequisites: Docker, Python 3.12+, Node.js 20+, uv
+# Clone the repository
+git clone https://github.com/shoaib6174/fenlo-bot.git
+cd fenlo-bot
 
-# Start databases
+# Set up environment variables
+cp botforge/backend/.env.example botforge/backend/.env
+# Edit .env with your API keys (Groq, OpenAI, Pinecone, etc.)
+
+# Start services with Docker Compose
 docker compose up -d
 
-# Backend
-cd botforge/backend
-uv sync
-uv run alembic upgrade head
-uv run uvicorn app.main:app --reload --port 8000
+# Run database migrations
+cd botforge/backend && alembic upgrade head
 
-# Worker (document processing)
-python worker.py
+# Start backend
+cd botforge/backend && uvicorn app.main:app --reload
 
-# Frontend (separate terminal)
-cd frontend
-npm install
-npm run dev
+# Start frontend (in a new terminal)
+cd frontend && npm install && npm run dev
 ```
 
-Copy `.env.example` to `.env` and fill in your API keys. See comments in the file for details.
+The app will be available at `http://localhost:3000`.
 
-## Testing
+## Demo
 
-```bash
-# Backend -- 388+ tests, 80%+ coverage
-cd botforge/backend
-pytest
-pytest --cov=app --cov-report=html
+**Live:** [bot.fenloai.com](https://bot.fenloai.com)
 
-# Frontend
-cd frontend
-npm test                    # Vitest (unit)
-npx playwright test         # E2E
-```
+### Screenshots
+
+| RAG Chat with Citations | Dashboard | Knowledge Base |
+|:---:|:---:|:---:|
+| ![RAG Chat](docs/sales/fiverr/01-chat-with-citations.png) | ![Dashboard](frontend/public/demo/screenshots/02-dashboard.png) | ![KB](frontend/public/demo/screenshots/03-kb.png) |
+
+| Knowledge Gap Detection | Voice Agent | Unified Inbox |
+|:---:|:---:|:---:|
+| ![Gaps](frontend/public/demo/screenshots/05-gaps.png) | ![Voice](frontend/public/demo/screenshots/06-voice.png) | ![Inbox](frontend/public/demo/screenshots/07-inbox.png) |
+
+| Analytics |
+|:---:|
+| ![Analytics](docs/sales/fiverr/04-analytics.png) |
+
+[Watch 30-second demo video](YOUR_VIDEO_LINK_HERE)
+
+## Results & Metrics
+
+| Feature | Metric |
+|---------|--------|
+| RAG Response Latency | ~500ms |
+| Citation Accuracy | Source-backed with knowledge gap detection |
+| Voice Latency | <2s real-time transcription via Vapi |
+| LLM Reliability | Circuit breaker pattern (Groq primary, OpenAI fallback) |
+| Multi-Channel | WhatsApp (Twilio), Telegram, Website widget, Zapier |
+| Widget Security | HMAC authentication |
+| Human Handoff | Freshdesk integration with escalation rules |
+| Analytics | Sentiment analysis, intent classification, lead scoring |
+| LLM Observability | Arize AX tracing + RAGAS evaluation pipeline |
+| Fine-Tuning | QLoRA + PEFT + TRL with W&B tracking |
+
+## What I Learned
+
+- **Production RAG at scale:** Built semantic search with Pinecone metadata filtering, source citations, and knowledge gap detection. Added RAGAS evaluation pipeline to measure context relevance, faithfulness, and answer quality.
+- **LLM observability:** Integrated Arize AX for distributed tracing across LLM calls, enabling latency analysis and error tracking in production.
+- **Real-time voice pipeline:** Designed a Vapi-based phone agent with WebRTC, real-time transcription, sentiment analysis, and smart escalation to human agents via Freshdesk.
+- **Resilient LLM architecture:** Implemented circuit breaker pattern with Groq as primary and OpenAI as fallback, ensuring uptime even during provider outages.
+- **ML engineering:** Fine-tuned models with QLoRA + PEFT + TRL, tracking experiments with Weights & Biases.
+- **Multi-channel security:** Built embeddable web widget with HMAC authentication, ensuring only authorized domains can load the chat interface.
 
 ## License
 
-Proprietary. All rights reserved.
+MIT
